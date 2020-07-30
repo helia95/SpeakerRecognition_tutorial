@@ -98,11 +98,11 @@ def perform_identification(use_cuda, model, embeddings, test_filename, test_fram
 def main():
     
     log_dir = 'model_saved' # Where the checkpoints are saved
-    embedding_dir = 'enroll_embeddings' # Where embeddings are saved
-    test_dir = 'feat_logfbank_nfilt40/test/' # Where test features are saved
+    embedding_dir = '../vox_celeb_embeddings/enroll' # Where embeddings are saved
+    test_dir = '../vox_celeb_features/test/' # Where test features are saved
     
     # Settings
-    use_cuda = True # Use cuda or not
+    use_cuda = False # Use cuda or not
     embedding_size = 128 # Dimension of speaker embeddings
     cp_num = 24 # Which checkpoint to use?
     n_classes = 240 # How many speakers in training data?

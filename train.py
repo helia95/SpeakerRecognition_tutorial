@@ -134,7 +134,7 @@ def main():
     print('Lowest validation loss at epoch %d' %minposs)
     
     # visualize the loss and learning rate as the network trained
-    visualize_the_losses(avg_train_losses, avg_valid_losses)
+    #visualize_the_losses(avg_train_losses, avg_valid_losses)
     
 
 def train(train_loader, model, criterion, optimizer, use_cuda, epoch, n_classes):

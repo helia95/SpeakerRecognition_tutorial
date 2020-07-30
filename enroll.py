@@ -37,12 +37,15 @@ def split_enroll_and_test(dataroot_dir):
     return enroll_DB, test_DB
 
 def get_embeddings(use_cuda, filename, model, test_frames):
+    print(filename)
     input, label = read_MFB(filename) # input size:(n_frames, n_dims)
-    
+    # feature, speaker_id
+
     tot_segments = math.ceil(len(input)/test_frames) # total number of segments with 'test_frames' 
     activation = 0
     with torch.no_grad():
         for i in range(tot_segments):
+            # Divide the input in sub_inputs of length test_frames
             temp_input = input[i*test_frames:i*test_frames+test_frames]
             
             TT = ToTensorTestInput()
@@ -106,7 +109,7 @@ def enroll_per_spk(use_cuda, test_frames, model, DB, embedding_dir):
 def main():
         
     # Settings
-    use_cuda = True
+    use_cuda = False
     log_dir = 'model_saved'
     embedding_size = 128
     cp_num = 24 # Which checkpoint to use?
@@ -117,13 +120,15 @@ def main():
     model = load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes)
     
     # Get the dataframe for enroll DB
-    enroll_DB, test_DB = split_enroll_and_test(c.TEST_FEAT_DIR)
+    featrues_path = '../vox_celeb_features/'
+    enroll_DB, test_DB = split_enroll_and_test(featrues_path)
     
     # Where to save embeddings
-    embedding_dir = 'enroll_embeddings'
-    
+    embedding_dir = '../vox_celeb_embeddings/'
+
     # Perform the enrollment and save the results
-    enroll_per_spk(use_cuda, test_frames, model, enroll_DB, embedding_dir)
+    enroll_per_spk(use_cuda, test_frames, model, enroll_DB, os.path.join(embedding_dir, 'enroll'))
+    enroll_per_spk(use_cuda, test_frames, model, test_DB, os.path.join(embedding_dir, 'test'))
     
     """ Test speaker list
     '103F3021', '207F2088', '213F5100', '217F3038', '225M4062', 

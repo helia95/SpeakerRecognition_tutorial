@@ -15,7 +15,7 @@ def read_MFB(filename):
     feature = feat_and_label['feat'] # size : (n_frames, dim=40)
     label = feat_and_label['label']
     """
-    VAD
+    VAD    we are removing the beginning / end of each audio file
     """
     start_sec, end_sec = 0.5, 0.5
     start_frame = int(start_sec / 0.01)

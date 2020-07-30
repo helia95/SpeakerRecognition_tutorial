@@ -91,19 +91,26 @@ def perform_verification(use_cuda, model, embeddings, enroll_speaker, test_filen
     else:
         result = 'Reject'
         
-    test_spk = test_filename.split('/')[-2].split('_')[0]
+    #test_spk = test_filename.split('/')[-2].split('_')[0]
+    test_spk = test_filename.split('\\')[0].split('/')[-1]
     print("\n=== Speaker verification ===")
-    print("True speaker: %s\nClaimed speaker : %s\n\nResult : %s\n" %(enroll_speaker, test_spk, result))
+    print("True speaker: %s\nClaimed speaker : %s" %(enroll_speaker, test_spk))
     print("Score : %0.4f\nThreshold : %0.2f\n" %(score, thres))
+
+    print(f'Result: {result}')
+    if not enroll_speaker == test_spk:
+        print('Correct result: Reject')
+    else:
+        print('Correct result: Accept')
 
 def main():
     
     log_dir = 'model_saved' # Where the checkpoints are saved
     embedding_dir = 'enroll_embeddings' # Where embeddings are saved
-    test_dir = 'feat_logfbank_nfilt40/test/' # Where test features are saved
+    test_dir = '../test_features/' # Where test features are saved
     
     # Settings
-    use_cuda = True # Use cuda or not
+    use_cuda = False # Use cuda or not
     embedding_size = 128 # Dimension of speaker embeddings
     cp_num = 24 # Which checkpoint to use?
     n_classes = 240 # How many speakers in training data?
@@ -121,21 +128,26 @@ def main():
     """ Test speaker list
     '103F3021', '207F2088', '213F5100', '217F3038', '225M4062', 
     '229M2031', '230M4087', '233F4013', '236M3043', '240M3063'
-    """ 
+    """
+    tot_test_speaker = ['103F3021', '207F2088', '213F5100', '217F3038', '225M4062',
+    '229M2031', '230M4087', '233F4013', '236M3043', '240M3063']
+
     
     # Set the true speaker
-    enroll_speaker = '230M4087'
+    enroll_speaker = '225M4062'
     
     # Set the claimed speaker
-    test_speaker = '230M4087' 
-    
-    # Threshold
-    thres = 0.95
-    
-    test_path = os.path.join(test_dir, test_speaker, 'test.p')
-    
-    # Perform the test 
-    perform_verification(use_cuda, model, embeddings, enroll_speaker, test_path, test_frames, thres)
+    for test_speaker in tot_test_speaker:
+
+        #test_speaker = '103F3021'
+
+        # Threshold
+        thres = 0.95
+
+        test_path = os.path.join(test_dir, test_speaker, 'test.p')
+
+        # Perform the test
+        perform_verification(use_cuda, model, embeddings, enroll_speaker, test_path, test_frames, thres)
 
 if __name__ == '__main__':
     main()
