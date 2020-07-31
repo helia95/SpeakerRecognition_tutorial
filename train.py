@@ -58,8 +58,13 @@ def split_train_dev(train_feat_dir, valid_ratio):
 
 def main():
     
+    # GPU parmas
+    use_cuda = True  # use gpu or cpu
+    idx_cuda = 0 
+    device = torch.device(f'cuda:{idx_cuda}')
+    
+
     # Set hyperparameters
-    use_cuda = True # use gpu or cpu
     val_ratio = 10 # Percentage of validation set
     embedding_size = 256 # origial 128
     start = 1 # Start epoch
@@ -90,7 +95,7 @@ def main():
     model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone='resnet18')
     
     if use_cuda:
-        model.cuda()
+        model.to(device)
     
     # define loss function (criterion), optimizer and scheduler
     criterion = nn.CrossEntropyLoss()
@@ -157,8 +162,8 @@ def train(train_loader, model, criterion, optimizer, use_cuda, epoch, n_classes)
         current_sample = inputs.size(0)  # batch size
        
         if use_cuda:
-            inputs = inputs.cuda()
-            targets = targets.cuda()
+            inputs = inputs.to(device)
+            targets = targets.to(device)
         
 
         _, output = model(inputs) # out size:(batch size, #classes), for softmax
@@ -210,8 +215,8 @@ def validate(val_loader, model, criterion, use_cuda, epoch):
             current_sample = inputs.size(0)  # batch size
             
             if use_cuda:
-                inputs = inputs.cuda()
-                targets = targets.cuda()
+                inputs = inputs.to(device)
+                targets = targets.to(device)
             
             # compute output
             _, output = model(inputs)
