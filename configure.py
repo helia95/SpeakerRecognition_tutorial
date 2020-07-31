@@ -4,11 +4,11 @@ DEV_WAV_DIR = '/home/admin/Desktop/read_25h_2/dev'
 TEST_WAV_DIR = 'test_wavs'
 
 # Feature path
-TRAIN_FEAT_DIR = 'feat_logfbank_nfilt40/train'
+TRAIN_FEAT_DIR = '/cas/DeepLearn/elperu/tmp/speech_datasets/LibriSpeech/train_features'
 TEST_FEAT_DIR = 'feat_logfbank_nfilt40/test'
 
 # Context window size
-NUM_WIN_SIZE = 100 #10
+NUM_WIN_SIZE = 200 # original was 100
 
 # Settings for feature extraction
 USE_LOGSCALE = True

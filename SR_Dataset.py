@@ -17,13 +17,13 @@ def read_MFB(filename):
     """
     VAD    we are removing the beginning / end of each audio file
     """
-    start_sec, end_sec = 0.5, 0.5
+    start_sec, end_sec = 0.1, 0.1
     start_frame = int(start_sec / 0.01)
     end_frame = len(feature) - int(end_sec / 0.01)
     ori_feat = feature
     feature = feature[start_frame:end_frame,:]
-    assert len(feature) > 40, (
-                'length is too short. len:%s, ori_len:%s, file:%s' % (len(feature), len(ori_feat), filename))
+    #assert(len(feature) > 40), 'length is too short. len:%s, ori_len:%s, file:%s' % (len(feature), len(ori_feat), filename)
+    
     return feature, label
 
 class TruncatedInputfromMFB(object):

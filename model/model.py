@@ -22,8 +22,8 @@ class background_resnet(nn.Module):
             self.pretrained = resnet.resnet34(pretrained=False)
         else:
             raise RuntimeError('unknown backbone: {}'.format(backbone))
-            
-        self.fc0 = nn.Linear(128, embedding_size)
+
+        self.fc0 = nn.Linear(self.pretrained.fc.in_features, embedding_size)
         self.bn0 = nn.BatchNorm1d(embedding_size)
         self.relu = nn.ReLU()
         self.last = nn.Linear(embedding_size, num_classes)

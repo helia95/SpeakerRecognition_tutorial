@@ -61,18 +61,19 @@ def main():
     # Set hyperparameters
     use_cuda = True # use gpu or cpu
     val_ratio = 10 # Percentage of validation set
-    embedding_size = 128
+    embedding_size = 256 # origial 128
     start = 1 # Start epoch
-    n_epochs = 30 # How many epochs?
+    n_epochs = 10 # How many epochs?
     end = start + n_epochs # Last epoch
     
     lr = 1e-1 # Initial learning rate
     wd = 1e-4 # Weight decay (L2 penalty)
-    optimizer_type = 'sgd' # ex) sgd, adam, adagrad
+    optimizer_type = 'adam' # ex) sgd, adam, adagrad
     
     batch_size = 64 # Batch size for training 
     valid_batch_size = 16 # Batch size for validation
     use_shuffle = True # Shuffle for training or not
+    save_interval = 5
     
     # Load dataset
     train_dataset, valid_dataset, n_classes = load_dataset(val_ratio)
@@ -86,7 +87,7 @@ def main():
         os.makedirs(log_dir)
         
     # instantiate model and initialize weights
-    model = background_resnet(embedding_size=embedding_size, num_classes=n_classes)
+    model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone='resnet18')
     
     if use_cuda:
         model.cuda()
@@ -118,16 +119,17 @@ def main():
         # evaluate on validation set
         valid_loss = validate(valid_loader, model, criterion, use_cuda, epoch)
         
-        scheduler.step(valid_loss, epoch)
+        scheduler.step(valid_loss)
         
         # calculate average loss over an epoch
         avg_train_losses.append(train_loss)
         avg_valid_losses.append(valid_loss)
         
         # do checkpointing
-        torch.save({'epoch': epoch + 1, 'state_dict': model.state_dict(),
-                    'optimizer': optimizer.state_dict()},
-                   '{}/checkpoint_{}.pth'.format(log_dir, epoch))
+        if epoch % save_interval == 0 or epoch == end-1:
+            torch.save({'epoch': epoch + 1, 'state_dict': model.state_dict(),
+                        'optimizer': optimizer.state_dict()},
+                       '{}/checkpoint_{}.pth'.format(log_dir, epoch))
                    
     # find position of lowest validation loss
     minposs = avg_valid_losses.index(min(avg_valid_losses))+1 
@@ -157,6 +159,8 @@ def train(train_loader, model, criterion, optimizer, use_cuda, epoch, n_classes)
         if use_cuda:
             inputs = inputs.cuda()
             targets = targets.cuda()
+        
+
         _, output = model(inputs) # out size:(batch size, #classes), for softmax
         
         # calculate accuracy of predictions in the current batch
@@ -165,6 +169,7 @@ def train(train_loader, model, criterion, optimizer, use_cuda, epoch, n_classes)
         train_acc_temp = 100. * n_correct / n_total
         train_acc.update(train_acc_temp, inputs.size(0))
         
+
         loss = criterion(output, targets)
         losses.update(loss.item(), inputs.size(0))
         
