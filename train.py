@@ -59,9 +59,11 @@ def split_train_dev(train_feat_dir, valid_ratio):
 def main():
     
     # GPU parmas
-    use_cuda = True  # use gpu or cpu
     idx_cuda = 0 
-    device = torch.device(f'cuda:{idx_cuda}')
+    if idx_cuda < 0:
+        device = torch.device('cpu')
+    else:    
+        device = torch.device(f'cuda:{idx_cuda}')
     
 
     # Set hyperparameters
@@ -94,8 +96,8 @@ def main():
     # instantiate model and initialize weights
     model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone='resnet18')
     
-    if use_cuda:
-        model.to(device)
+
+    model.to(device)
     
     # define loss function (criterion), optimizer and scheduler
     criterion = nn.CrossEntropyLoss()
@@ -119,10 +121,10 @@ def main():
     for epoch in range(start, end):
     
         # train for one epoch
-        train_loss = train(train_loader, model, criterion, optimizer, use_cuda, epoch, n_classes)
+        train_loss = train(train_loader, model, criterion, optimizer, device, epoch, n_classes)
         
         # evaluate on validation set
-        valid_loss = validate(valid_loader, model, criterion, use_cuda, epoch)
+        valid_loss = validate(valid_loader, model, criterion, device, epoch)
         
         scheduler.step(valid_loss)
         
@@ -144,7 +146,7 @@ def main():
     #visualize_the_losses(avg_train_losses, avg_valid_losses)
     
 
-def train(train_loader, model, criterion, optimizer, use_cuda, epoch, n_classes):
+def train(train_loader, model, criterion, optimizer, device, epoch, n_classes):
     batch_time = AverageMeter()
     losses = AverageMeter()
     train_acc = AverageMeter()
@@ -161,10 +163,10 @@ def train(train_loader, model, criterion, optimizer, use_cuda, epoch, n_classes)
         targets = targets.view(-1) # target size:(batch size)
         current_sample = inputs.size(0)  # batch size
        
-        if use_cuda:
-            inputs = inputs.to(device)
-            targets = targets.to(device)
-        
+    
+        inputs = inputs.to(device)
+        targets = targets.to(device)
+    
 
         _, output = model(inputs) # out size:(batch size, #classes), for softmax
         
@@ -198,7 +200,7 @@ def train(train_loader, model, criterion, optimizer, use_cuda, epoch, n_classes)
                      batch_time=batch_time, loss=losses, train_acc=train_acc))
     return losses.avg
                      
-def validate(val_loader, model, criterion, use_cuda, epoch):
+def validate(val_loader, model, criterion, device, epoch):
     batch_time = AverageMeter()
     losses = AverageMeter()
     val_acc = AverageMeter()
@@ -214,10 +216,10 @@ def validate(val_loader, model, criterion, use_cuda, epoch):
             inputs, targets = data
             current_sample = inputs.size(0)  # batch size
             
-            if use_cuda:
-                inputs = inputs.to(device)
-                targets = targets.to(device)
-            
+        
+            inputs = inputs.to(device)
+            targets = targets.to(device)
+        
             # compute output
             _, output = model(inputs)
             
