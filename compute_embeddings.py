@@ -10,9 +10,10 @@ import configure as c
 from DB_wav_reader import read_feats_structure
 from SR_Dataset import read_MFB, ToTensorTestInput
 from model.model import background_resnet
+import pdb
 
-def load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes):
-    model = background_resnet(embedding_size=embedding_size, num_classes=n_classes)
+def load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes, resnet_version):
+    model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone=resnet_version)
     if use_cuda:
         model.cuda()
     print('=> loading checkpoint')
@@ -22,19 +23,6 @@ def load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes):
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
     return model
-
-def split_enroll_and_test(dataroot_dir):
-    DB_all = read_feats_structure(dataroot_dir)
-    enroll_DB = pd.DataFrame()
-    test_DB = pd.DataFrame()
-    
-    enroll_DB = DB_all[DB_all['filename'].str.contains('enroll.p')]
-    test_DB = DB_all[DB_all['filename'].str.contains('test.p')]
-    
-    # Reset the index
-    enroll_DB = enroll_DB.reset_index(drop=True)
-    test_DB = test_DB.reset_index(drop=True)
-    return enroll_DB, test_DB
 
 def get_embeddings(use_cuda, filename, model, test_frames):
     print(filename)
@@ -56,7 +44,7 @@ def get_embeddings(use_cuda, filename, model, test_frames):
             temp_activation,_ = model(temp_input)
             activation += torch.sum(temp_activation, dim=0, keepdim=True)
     
-    activation = l2_norm(activation, 1)
+    activation = l2_norm(activation, 10)
                 
     return activation
 
@@ -89,51 +77,46 @@ def enroll_per_spk(use_cuda, test_frames, model, DB, embedding_dir):
         spk = DB['speaker_id'][i]
         
         activation = get_embeddings(use_cuda, filename, model, test_frames)
-        if spk in embeddings:
-            embeddings[spk] += activation
-        else:
-            embeddings[spk] = activation
+        
+        file_id = os.path.basename(filename)
+        file_id = file_id.split('.')[0]
             
-        print("Aggregates the activation (spk : %s)" % (spk))
-        
-    if not os.path.exists(embedding_dir):
-        os.makedirs(embedding_dir)
-        
-    # Save the embeddings
-    for spk_index in enroll_speaker_list:
-        embedding_path = os.path.join(embedding_dir, spk_index+'.pth')
-        torch.save(embeddings[spk_index], embedding_path)
-        print("Save the embeddings for %s" % (spk_index))
-    return embeddings
+        #print("Aggregates the activation (spk : %s)" % (spk))
+        if not os.path.exists(os.path.join(embedding_dir, spk)):
+            os.makedirs(os.path.join(embedding_dir, spk))
+            
+        embedding_path = os.path.join(embedding_dir, spk, file_id+'.pth')
+        torch.save(activation.cpu(), embedding_path)
+        print("Save the embeddings for {}, {}".format(spk, file_id))
+
     
 def main():
         
     # Settings
-    use_cuda = False
+    use_cuda = True
     log_dir = 'model_saved'
-    embedding_size = 128
-    cp_num = 24 # Which checkpoint to use?
-    n_classes = 240
+    cp_num = 50 # Which checkpoint to use?
     test_frames = 200
+
+    # Model params
+    resnet_version = 'resnet18'
+    embedding_size = 128
+    n_classes = 200
     
     # Load model from checkpoint
-    model = load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes)
+    model = load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes, resnet_version)
     
     # Get the dataframe for enroll DB
-    featrues_path = '../vox_celeb_features/'
-    enroll_DB, test_DB = split_enroll_and_test(featrues_path)
+    featrues_path = '/cas/DeepLearn/elperu/tmp/speech_datasets/LibriSpeech/train_test_split/test'
+    
+    DB_all = read_feats_structure(featrues_path)
     
     # Where to save embeddings
-    embedding_dir = '../vox_celeb_embeddings/'
+    embedding_dir = '/cas/DeepLearn/elperu/tmp/speech_datasets/LibriSpeech/embeddings_10'
 
     # Perform the enrollment and save the results
-    enroll_per_spk(use_cuda, test_frames, model, enroll_DB, os.path.join(embedding_dir, 'enroll'))
-    enroll_per_spk(use_cuda, test_frames, model, test_DB, os.path.join(embedding_dir, 'test'))
-    
-    """ Test speaker list
-    '103F3021', '207F2088', '213F5100', '217F3038', '225M4062', 
-    '229M2031', '230M4087', '233F4013', '236M3043', '240M3063'
-    """ 
+    enroll_per_spk(use_cuda, test_frames, model, DB_all, embedding_dir)
+
 
 if __name__ == '__main__':
     main()

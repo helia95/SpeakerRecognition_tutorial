@@ -4,7 +4,7 @@ DEV_WAV_DIR = '/home/admin/Desktop/read_25h_2/dev'
 TEST_WAV_DIR = 'test_wavs'
 
 # Feature path
-TRAIN_FEAT_DIR = '/cas/DeepLearn/elperu/tmp/speech_datasets/LibriSpeech/train_features'
+TRAIN_FEAT_DIR = '/cas/DeepLearn/elperu/tmp/speech_datasets/LibriSpeech/train_test_split/train'
 TEST_FEAT_DIR = 'feat_logfbank_nfilt40/test'
 
 # Context window size

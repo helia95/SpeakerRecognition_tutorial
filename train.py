@@ -59,25 +59,28 @@ def split_train_dev(train_feat_dir, valid_ratio):
 def main():
     
     # GPU parmas
-    idx_cuda = 0 
+    idx_cuda = 2 
     if idx_cuda < 0:
         device = torch.device('cpu')
     else:    
         device = torch.device(f'cuda:{idx_cuda}')
+        
+    # Background model
+    resnet_version = 'resnet18'
     
 
     # Set hyperparameters
     val_ratio = 10 # Percentage of validation set
-    embedding_size = 256 # origial 128
+    embedding_size = 128 # origial 128
     start = 1 # Start epoch
-    n_epochs = 10 # How many epochs?
+    n_epochs = 50 # How many epochs?
     end = start + n_epochs # Last epoch
     
     lr = 1e-1 # Initial learning rate
     wd = 1e-4 # Weight decay (L2 penalty)
     optimizer_type = 'adam' # ex) sgd, adam, adagrad
     
-    batch_size = 64 # Batch size for training 
+    batch_size = 256 # Batch size for training 
     valid_batch_size = 16 # Batch size for validation
     use_shuffle = True # Shuffle for training or not
     save_interval = 5
@@ -94,9 +97,8 @@ def main():
         os.makedirs(log_dir)
         
     # instantiate model and initialize weights
-    model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone='resnet18')
+    model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone=resnet_version)
     
-
     model.to(device)
     
     # define loss function (criterion), optimizer and scheduler

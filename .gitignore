@@ -1,0 +1,6 @@
+.ipynb_checkpoints/*
+__pycache__/*
+model/.ipynb_checkpoints/*
+model/__pycache__/*
+model_saved/*
+notebooks/.ipynb_checkpoints/*
