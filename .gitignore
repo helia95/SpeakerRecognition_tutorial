@@ -4,3 +4,4 @@ model/.ipynb_checkpoints/*
 model/__pycache__/*
 model_saved/*
 notebooks/.ipynb_checkpoints/*
+*.pkl
