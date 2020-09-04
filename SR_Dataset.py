@@ -181,6 +181,7 @@ def collate_fn_feat_padded(batch):
     
     return padded_features, labels
 
+import pdb
 class DvectorDataset(data.Dataset):
     def __init__(self, DB, loader, spk_to_idx, transform=None, *arg, **kw):
         self.DB = DB
@@ -188,6 +189,9 @@ class DvectorDataset(data.Dataset):
         self.transform = transform
         self.loader = loader
         self.spk_to_idx = spk_to_idx
+        # Save spk to idx
+        with open('spk_to_idx.pkl', 'wb') as f:
+            pickle.dump(spk_to_idx, f)
     
     def __getitem__(self, index):
         feat_path = self.DB['filename'][index]
