@@ -86,7 +86,7 @@ def load_dataset(M):
 def main():
     
     # GPU parmas
-    idx_cuda = -1
+    idx_cuda = 2
     if idx_cuda < 0:
         device = torch.device('cpu')
     else:    
@@ -96,18 +96,19 @@ def main():
     # Set hyperparameters
     embedding_size = 128 # origial 128
     start = 1 # Start epoch
-    n_epochs = 10 # How many epochs?
+    n_epochs = 40 # How many epochs?
     end = start + n_epochs # Last epoch
     
     lr = 1e-1 # Initial learning rate
     wd = 1e-4 # Weight decay (L2 penalty)
     optimizer_type = 'adam' # ex) sgd, adam, adagrad
     
-    #batch_size = 4 # Batch size for training
-    M = 2 # number of utterances per speaker
-    N = 8  # Number of speaker
-
+    
     # The effective batch size is M*N
+    M = 5 # number of utterances per speaker
+    N = 10  # Number of speaker
+
+  
 
     print(f'Number of utternaces per speaker: {M}')
     print(f'Number of speakers: {N}')
@@ -118,11 +119,9 @@ def main():
     
     # Load dataset
     train_dataset, n_classes = load_dataset(M)
-    
-    # print the experiment configuration
 
     
-    log_dir = 'model_saved' # where to save checkpoints
+    log_dir = 'model_saved_verification' # where to save checkpoints
     
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
@@ -131,7 +130,7 @@ def main():
     model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone='resnet18')
 
     # Load the wights trained for identification
-    #model.load_state_dict(torch.load(os.path.join(log_dir, 'checkpoint_45.pth')))
+    model.load_state_dict(torch.load('model_saved/checkpoint_50.pth')['state_dict'])
 
     # remove the last layers
     

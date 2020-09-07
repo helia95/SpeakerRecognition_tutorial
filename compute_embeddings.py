@@ -94,8 +94,8 @@ def main():
         
     # Settings
     use_cuda = True
-    log_dir = 'model_saved'
-    cp_num = 50 # Which checkpoint to use?
+    log_dir = 'model_saved_verification'
+    cp_num = 40 # Which checkpoint to use?
     test_frames = 200
 
     # Model params

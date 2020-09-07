@@ -181,7 +181,6 @@ def collate_fn_feat_padded(batch):
     
     return padded_features, labels
 
-import pdb
 class DvectorDataset(data.Dataset):
     def __init__(self, DB, loader, spk_to_idx, transform=None, *arg, **kw):
         self.DB = DB
