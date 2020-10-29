@@ -3,5 +3,6 @@ __pycache__/*
 model/.ipynb_checkpoints/*
 model/__pycache__/*
 model_saved/*
+model_saved_verification/*
 notebooks/.ipynb_checkpoints/*
 *.pkl

@@ -94,8 +94,8 @@ def main():
         
     # Settings
     use_cuda = True
-    log_dir = 'model_saved_verification'
-    cp_num = 40 # Which checkpoint to use?
+    log_dir = 'identification_model_ckpt'
+    cp_num = 50 # Which checkpoint to use?
     test_frames = 200
 
     # Model params
@@ -112,7 +112,7 @@ def main():
     DB_all = read_feats_structure(featrues_path)
     
     # Where to save embeddings
-    embedding_dir = '/cas/DeepLearn/elperu/tmp/speech_datasets/LibriSpeech/embeddings_10'
+    embedding_dir = '/cas/DeepLearn/elperu/tmp/speech_datasets/LibriSpeech/embd_identification'
 
     # Perform the enrollment and save the results
     enroll_per_spk(use_cuda, test_frames, model, DB_all, embedding_dir)

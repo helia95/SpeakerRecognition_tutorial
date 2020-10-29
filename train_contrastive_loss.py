@@ -96,7 +96,7 @@ def main():
     # Set hyperparameters
     embedding_size = 128 # origial 128
     start = 1 # Start epoch
-    n_epochs = 40 # How many epochs?
+    n_epochs = 60 # How many epochs?
     end = start + n_epochs # Last epoch
     
     lr = 1e-1 # Initial learning rate
@@ -121,16 +121,16 @@ def main():
     train_dataset, n_classes = load_dataset(M)
 
     
-    log_dir = 'model_saved_verification' # where to save checkpoints
+    log_dir = 'model_saved_verification_2' # where to save checkpoints
     
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
         
     # instantiate model and initialize weights
-    model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone='resnet18')
+    model = background_resnet(embedding_size=embedding_size, num_classes=n_classes, backbone='resnet34')
 
     # Load the wights trained for identification
-    model.load_state_dict(torch.load('model_saved/checkpoint_50.pth')['state_dict'])
+    #smodel.load_state_dict(torch.load('model_saved/checkpoint_50.pth')['state_dict'])
 
     # remove the last layers
     
